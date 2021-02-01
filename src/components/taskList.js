@@ -29,20 +29,19 @@ const TaskList = () => {
             note: newNote,
             priority: priority
     }
-    //POST task
-    if (newTask){
-        axios
-        .post('http://localhost:3001/tasks', taskObject)
-        .then(response => {
-            dispatch({ type: 'ADDTASK', payload: response.data})
-            //Clear data
-            setNewTask('')
-            setNewNote('')
-            setPriority('')
-        })
-    }
-    }
-    
+        //POST task
+        if (newTask){ //Check if a new task has been entered
+            axios
+            .post('http://localhost:3001/tasks', taskObject)
+            .then(response => {
+                dispatch({ type: 'ADDTASK', payload: response.data})
+                //Clear inputs
+                setNewTask('')
+                setNewNote('')
+                setPriority('')
+            })
+        }
+    }    
     
     const handleTaskChange = (event) => {
         setNewTask(event.target.value)
@@ -54,11 +53,12 @@ const TaskList = () => {
         setPriority(event.target.value)
     }
 
+    //Remove task by dragging into <i> trashcan icon
     const removeTask = (event) => {
         event.preventDefault()
         var a = event.dataTransfer.getData("Text");
         var b = document.getElementById(a)
-        b.classList.add('hidden')
+        b.classList.add('hidden') //Hide the removed task as not to mutate react state directly
         axios
             .delete(`http://localhost:3001/tasks/${a}`)
     }
@@ -68,20 +68,20 @@ const TaskList = () => {
     }
 
     const onDragStart = (event) => {
-        event.dataTransfer.setData("Text", event.target.id)
+        event.dataTransfer.setData("Text", event.target.id) //Get id of dragged element
         var x = document.getElementById('trash')
-        x.classList.add('trashHighlight')
+        x.classList.add('trashHighlight') //Highlight trashcan icon
     }
 
     const onDragEnd = (event) => {
         event.preventDefault()
         var x = document.getElementById('trash')
-        x.classList.remove('trashHighlight')
+        x.classList.remove('trashHighlight') //Remove highlight from trashcan icon
     }
         
-    if (useSelector(state => state.taskLoadedReducer) === true){
+    if (useSelector(state => state.taskLoadedReducer) === true){ //If task list has been loaded by axios
         return (
-            <div id="taskList" className="hidden">
+            <div id="taskList" className="hidden"> {/*Shown after stage change*/}
                 {Object.values(store.getState().taskReducer).map(task => 
                 <div draggable="true" id={task.id} onDragStart={onDragStart} onDragEnd={onDragEnd}>
                     <p className="taskTitle">{task.title}</p>
