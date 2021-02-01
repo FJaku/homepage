@@ -1,49 +1,46 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import backgroundImage from '../img/background.jpg'
+import store from '../redux/store'
+import { useSelector, useDispatch } from 'react-redux'
+import TaskList from './taskList'
+
 
 const App = () => {
+  const dispatch = useDispatch();
 
   //TODO - replace useState hooks with redux
-  const [tasks, setTasks] = useState ([])
-  const [newTask, setNewTask] = useState ('')
-  const [newNote, setNewNote] = useState ('')
-  const [priority, setPriority] = useState ('')
+ 
   const [weather, setWeather] = useState ([])
   const [nameDay, setNameDay] = useState ([])
-  const [welcomeSentence, setWelcomeSentence] = useState ('')
-  const [currentStage, setCurrentStage] = useState ('stage1')
-  const [currentWelcomeStage, setCurrentWelcomeStage] = useState ('welcomeStage1')
-  const [currentStageGreeting, setCurrentStageGreeting] = useState ('welcomeAuthorStage1')
-  
-
-  //Load task list from local server
-  useEffect(() => {
-    axios
-      .get('http://localhost:3001/tasks')
-      .then(response => {
-        setTasks(response.data)
-      })
-  }, [])
+  const [welcomeSentence, setWelcomeSentence] = useState ('')  
 
   //Welcome screen - stage1 + transition
   const Welcome = () => {
-    if (welcomeSentence.length === 15 && currentStage === 'stage1') {
+    const isStage2 = useSelector(state => state.isStage2Reducer)
+    if (welcomeSentence.length === 15 && isStage2 === false) {
+
       //Transition from stage 1 to stage 2 
-      setTimeout(() => {
+      setTimeout(() => {        
         //Class change
-        setCurrentStage(currentStage.replace('stage1', 'stage2'))
-        setCurrentWelcomeStage(currentWelcomeStage.replace('welcomeStage1', 'welcomeStage2'))
-        setCurrentStageGreeting(currentStageGreeting.replace('welcomeAuthorStage1', 'welcomeAuthorStage2'))
+        var x = document.getElementById('containerWelcome')
+          x.classList.remove('welcomeStage1')
+          x.classList.add('welcomeStage2')
+        var y = document.getElementById('welcomeAuthorStage1')
+          y.id = 'welcomeAuthorStage2'
+        var z = document.getElementById('taskList')
+          z.classList.remove('hidden')
+          z.classList.add('shown')
+        dispatch ({ type: 'ISSTAGE2' })
+
       }, 4000)
     }
-    //TODO - set await for animations to complete, edit stylesheet accordingly
 
     return (
-      <div id='containerWelcome'>
+      <div>
         <img src={backgroundImage} id="backgroundImage" alt="error"/>
-        <div className={currentWelcomeStage} stage={currentStage}>
-          <p id={currentStageGreeting}>
+        <div className='welcomeStage1' id='containerWelcome'>
+          <p id='welcomeAuthorStage1'>
             <WelcomeSentenceFunction />
           </p>
           <TodaysTasks />
@@ -69,7 +66,7 @@ const App = () => {
     welcomeSentenceFunctionInner()
       return (
         <>
-          <span stage={currentStage}>{welcomeSentence}</span>
+          <span>{welcomeSentence}</span>
         </>
       )
   }
@@ -91,6 +88,7 @@ const App = () => {
 
   //Todays Tasks return
   const TodaysTasks = () => {
+    var tasks = useSelector(state => state.taskReducer)
     if (tasks.length === 1) {
       return (
         <p>Today is {n} and you have <span id="numberOfTasksWelcome">{tasks.length}</span> thing to do today.</p>
@@ -183,85 +181,12 @@ const App = () => {
     )
   }
 
-
-
-  //Final desktop - stage2
-  ////////////////////////
-
-  //Tasklist
-  const TaskList = () => {
-      return (
-        <div id="taskList" className={currentStage}>
-          {tasks.map(task => 
-          <>
-            <p>{task.title}</p>
-            <p>{task.note}</p>
-          </> 
-          )}
-          <form onSubmit={addTask}>
-            <input
-              value={newTask}
-              onChange={handleTaskChange}
-              placeholder='What has to be done?'
-            />
-            <input 
-              value={newNote}
-              onChange={handleNoteChange}
-              placeholder='Notes'
-            />
-            <select name="priority" onChange={handlePriorityChange}>
-              <option value="1">High</option>
-              <option value="2">Medium</option>
-              <option value="3">Low</option>
-            </select>
-            <button type="submit">
-              Save
-            </button>
-          </form>
-        </div>  
-      )
-  }
-
-  //Tasklist handlers
-  const addTask = (event) => {
-    event.preventDefault()
-    const taskObject = {
-      title: newTask,
-      note: newNote,
-      priority: priority
-    }
-    //POST task
-    axios
-      .post('http://localhost:3001/tasks', taskObject)
-      .then(response => {
-        setTasks(tasks.concat(response.data))
-        //Clear data
-        setNewTask('')
-        setNewNote('')
-        setPriority('')
-      })
-      console.log(tasks)
-  }
-
-  const handleTaskChange = (event) => {
-    setNewTask(event.target.value)
-  }
-  const handleNoteChange = (event) => {
-    setNewNote(event.target.value)
-  }
-  const handlePriorityChange = (event) => {
-    setPriority(event.target.value)
-  }
-  
 //APP RENDER
   return (
     <>
       <Welcome />
       <Clock />
-      <TaskList />
-      
-      
-      
+      <TaskList />          
     </>
   )
 }
