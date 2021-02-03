@@ -10,7 +10,8 @@ const TaskList = () => {
         axios
         .get('http://localhost:3001/tasks')
         .then(response => {
-            dispatch({ type: 'LISTENTASKS', payload: response.data})
+            var x = response.data.sort( (a,b) => a.priority - b.priority ) //Sort by priority
+            dispatch({ type: 'LISTENTASKS', payload: x })
             dispatch({ type: 'ISLOADED' })
         })
     }, [])
@@ -28,13 +29,13 @@ const TaskList = () => {
             title: newTask,
             note: newNote,
             priority: priority
-    }
+        }
         //POST task
         if (newTask){ //Check if a new task has been entered
             axios
             .post('http://localhost:3001/tasks', taskObject)
             .then(response => {
-                dispatch({ type: 'ADDTASK', payload: response.data})
+                dispatch({ type: 'ADDTASK', payload: response.data })
                 //Clear inputs
                 setNewTask('')
                 setNewNote('')
@@ -63,6 +64,7 @@ const TaskList = () => {
             .delete(`http://localhost:3001/tasks/${a}`)
     }
 
+    //Drag to trashcan to delete
     const onDragOver = (event) => {
         event.preventDefault()
     }
