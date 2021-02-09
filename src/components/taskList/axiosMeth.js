@@ -17,7 +17,7 @@ const post = async (props) => {
 
 const get = async () => {
     try {
-        axios
+        await axios
         .get('http://localhost:3001/tasks')
         .then(response => {
             var x = response.data.sort( (a,b) => a.priority - b.priority ) //Sort by priority
