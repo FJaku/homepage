@@ -1,18 +1,22 @@
 import axios from 'axios'
 import store from '../../redux/store'
 
-const post = (props) => {
-    console.log(props)
-    if (props.title){ //Check if a new task has been entered
-        axios
-        .post('http://localhost:3001/tasks', props)
-        .then(response => {
-            store.dispatch({ type: 'ADDTASK', payload: response.data })            
-        })
-    }
+const post = async (props) => {
+    try {
+        if (props.title){ //Check if a new task has been entered
+            await axios
+            .post('http://localhost:3001/tasks', props)
+            .then(response => {
+                store.dispatch({ type: 'ADDTASK', payload: response.data })            
+            })
+        }
+    } catch (err) {
+        console.error(err);
+    }    
 }
 
-const get = () => {
+const get = async () => {
+    try {
         axios
         .get('http://localhost:3001/tasks')
         .then(response => {
@@ -20,6 +24,9 @@ const get = () => {
             store.dispatch({ type: 'LISTENTASKS', payload: x })
             store.dispatch({ type: 'ISLOADED' })
         })
+    } catch (err) {
+        console.error(err)
+    }        
 }
 
 export { post, get }
