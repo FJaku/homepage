@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import backgroundImage from '../img/background.jpg'
-import store from '../redux/store'
 import { useSelector, useDispatch } from 'react-redux'
-import TaskList from './taskList'
+import TaskList from './taskList/taskList'
+import Clock from './clock'
 
 
 const App = () => {
@@ -15,7 +15,7 @@ const App = () => {
   const [nameDay, setNameDay] = useState ([])
   const [welcomeSentence, setWelcomeSentence] = useState ('')  
 
-  //Welcome screen - stage1 + transition
+  //Welcome screen (stage1)
   const Welcome = () => {
     const isStage2 = useSelector(state => state.isStage2Reducer)
     if (welcomeSentence.length === 15 && isStage2 === false) {
@@ -110,8 +110,7 @@ const App = () => {
   useEffect (() => {
     const params = {
       access_key: process.env.REACT_APP_WEATHER_API_KEY,
-      query: 'Poprad',
-      query1: 'Bratislava' //For testing purposes
+      query: 'Poprad'
     }
     axios
       .get("https://api.openweathermap.org/data/2.5/weather?q=" + params.query + "&units=metric&appid=" + params.access_key)
@@ -160,25 +159,6 @@ const App = () => {
       )
     }
     
-  }
-
-  
-  //Clock
-  const Clock = () => {
-    const [currentTime, setCurrentTime] = useState (new Date().toLocaleTimeString())
-
-    useEffect(() => {
-      const interval = setInterval(() => {
-        setCurrentTime(new Date().toLocaleTimeString())
-      }, 1000)
-    return () => clearInterval(interval)
-    }, [])
-
-    return (
-      <div id="clock">
-        {currentTime}
-      </div>
-    )
   }
 
 //APP RENDER
